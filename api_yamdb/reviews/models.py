@@ -18,3 +18,7 @@ class User(AbstractUser):
         max_length=16,
         choices=ROLES
     )
+
+
+class Categories(models.Model):
+    pass
