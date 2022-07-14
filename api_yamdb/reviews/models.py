@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 ROLES = (
     ('user', 'Пользователь'),
@@ -29,3 +30,34 @@ class Categories(models.Model):
 
     def __str__(self):
         return self.text
+
+
+class Titles(models.Model):
+    name = models.TextField()
+    year = models.DateTimeField(
+        'Дата публикации', auto_now_add=True
+    )
+    rating = models.IntegerField(
+        validators=[
+            MaxValueValidator(10),
+            MinValueValidator(1)
+        ],
+        blank=True,
+        null=True,
+    )
+    description = models.TextField()
+    genres = models.ManyToManyField(Genres,
+    )
+    categories = models.ForeignKey(
+        Categories,
+        on_delete=models.SET_NULL,
+        related_name='titles',
+        blank=True,
+        null=True,
+    )
+
+    class Meta:
+        ordering = ['year']
+
+    def __str__(self):
+        return self.name
