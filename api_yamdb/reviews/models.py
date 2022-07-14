@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 ROLES = (
-    ('user','Пользователь'),
+    ('user', 'Пользователь'),
     ('moderator', 'Модератор'),
     ('admin', 'Администратор')
 )
@@ -21,4 +21,11 @@ class User(AbstractUser):
 
 
 class Categories(models.Model):
-    pass
+    name = models.CharField(max_length=256)
+    slug = models.SlugField(unique=True, max_length=50)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.text
