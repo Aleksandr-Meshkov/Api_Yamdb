@@ -1,10 +1,7 @@
-from ast import Pass
-from api_yamdb.reviews.models import Categories
-
-from reviews.models import Categories, Titles
+from reviews.models import Categories, Titles, Genres
 from rest_framework import mixins, viewsets
 from rest_framework.pagination import LimitOffsetPagination
-from .serializers import CategoriesSerializer, TitlesSerializer
+from .serializers import CategoriesSerializer, TitlesSerializer, GenresSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
 
@@ -27,7 +24,16 @@ class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
     serializer_class = TitlesSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('categories', 'genre', 'titles', 'year')
+    # filterset_fields = ('categories', 'genre', 'titles', 'year')
+
+    def perform_create(self, serializer):
+        serializer.save(admin=self.request.user)
+
+
+class GenresViewSet(CreateListDestroyViewSet):
+    queryset = Genres.objects.all()
+    serializer_class = GenresSerializer
+    pagination_class = LimitOffsetPagination
 
     def perform_create(self, serializer):
         serializer.save(admin=self.request.user)

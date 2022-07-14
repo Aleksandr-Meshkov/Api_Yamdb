@@ -46,8 +46,7 @@ class Titles(models.Model):
         null=True,
     )
     description = models.TextField()
-    genres = models.ManyToManyField(Genres,
-    )
+    genres = models.ManyToManyField('Genres')
     categories = models.ForeignKey(
         Categories,
         on_delete=models.SET_NULL,
@@ -58,6 +57,17 @@ class Titles(models.Model):
 
     class Meta:
         ordering = ['year']
+
+    def __str__(self):
+        return self.name
+
+
+class Genres(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(unique=True)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         return self.name
