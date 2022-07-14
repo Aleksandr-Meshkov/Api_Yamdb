@@ -1,3 +1,4 @@
+from ast import Pass
 from api_yamdb.reviews.models import Categories
 
 from reviews.models import Categories
