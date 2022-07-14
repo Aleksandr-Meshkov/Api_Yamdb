@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from rest_framework import filters
 
 ROLES = (
     ('user', 'Пользователь'),
@@ -55,8 +56,8 @@ class Titles(models.Model):
         null=True,
     )
 
-    class Meta:
-        ordering = ['year']
+    # class Meta:
+    #     ordering = ['year']
 
     def __str__(self):
         return self.name
