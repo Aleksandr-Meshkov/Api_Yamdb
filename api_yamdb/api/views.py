@@ -2,9 +2,12 @@ from django.http import HttpResponse
 from reviews.models import Categories, Titles, Genres
 from rest_framework import mixins, viewsets
 from rest_framework.pagination import LimitOffsetPagination
-from .serializers import CategoriesSerializer, TitlesSerializer, GenresSerializer
+from .serializers import CategoriesSerializer, TitlesSerializer, GenresSerializer, TitlesGetSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 class CreateListDestroyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
@@ -20,8 +23,9 @@ class CategoriesViewSet(CreateListDestroyViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
 
-    def perform_create(self, serializer):
-        serializer.save(self.request.user.is_superuser)
+    # def perform_create(self, serializer):
+        # serializer.save(self.request.user.is_superuser)
+    #     serializer.save(user=self.request.user)
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
@@ -31,8 +35,10 @@ class TitlesViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('categories', 'genres', 'name', 'year')
 
-    def perform_create(self, serializer):
-        serializer.save(admin=self.request.user)
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return TitlesGetSerializer
+        return TitlesSerializer
 
 
 class GenresViewSet(CreateListDestroyViewSet):
@@ -42,8 +48,8 @@ class GenresViewSet(CreateListDestroyViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
 
-    def perform_create(self, serializer):
-        serializer.save(admin=self.request.user)
+    # def perform_create(self, serializer):
+    #     serializer.save(admin=self.request.user)
 
 
 def load(request):
