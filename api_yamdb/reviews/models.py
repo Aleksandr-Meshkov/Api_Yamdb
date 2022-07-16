@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from rest_framework import filters
+from .validators import validate_year
 
 ROLES = (
     ('user', 'Пользователь'),
@@ -22,21 +23,28 @@ class User(AbstractUser):
     )
 
 
-class Categories(models.Model):
+class Genre(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Category(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50)
-
-    class Meta:
-        ordering = ['name']
 
     def __str__(self):
         return self.text
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.TextField()
     year = models.DateTimeField(
-        'Дата публикации', auto_now_add=True
+        'Дата публикации',
+        validators=[validate_year],
+        auto_now_add=True
     )
     rating = models.IntegerField(
         validators=[
@@ -47,28 +55,14 @@ class Titles(models.Model):
         null=True,
     )
     description = models.TextField()
-    genres = models.ManyToManyField('Genres')
-    categories = models.ForeignKey(
-        Categories,
+    genre = models.ManyToManyField(Genre)
+    category = models.ForeignKey(
+        Category,
         on_delete=models.SET_NULL,
         related_name='titles',
         blank=True,
         null=True,
     )
-
-    # class Meta:
-    #     ordering = ['year']
-
-    def __str__(self):
-        return self.name
-
-
-class Genres(models.Model):
-    name = models.CharField(max_length=50)
-    slug = models.SlugField(unique=True)
-
-    class Meta:
-        ordering = ['name']
 
     def __str__(self):
         return self.name

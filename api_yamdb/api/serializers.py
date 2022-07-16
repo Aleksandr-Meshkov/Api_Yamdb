@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from reviews.models import Categories, Titles, Genres
+from reviews.models import Category, Title, Genre
 from rest_framework.relations import SlugRelatedField
 import datetime as dt
 
@@ -7,16 +7,18 @@ import datetime as dt
 class CategoriesSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Categories
+        model = Category
         fields = ('name', 'slug')
 
 
 class TitlesSerializer(serializers.ModelSerializer):
-    categories = SlugRelatedField(slug_field='slug', queryset=Categories.objects.all())
-    genres = SlugRelatedField(slug_field='slug', many=True, queryset=Genres.objects.all())
+    """Основной метод записи информации."""
+    category = SlugRelatedField(slug_field='slug', queryset=Category.objects.all())
+    genre = SlugRelatedField(slug_field='slug', many=True,
+                              queryset=Genre.objects.all())
 
     class Meta:
-        model = Titles
+        model = Title
         fields = '__all__'
 
     def validate_year(self, value):
@@ -29,15 +31,15 @@ class TitlesSerializer(serializers.ModelSerializer):
 class GenresSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Genres
+        model = Genre
         fields = ('name', 'slug')
 
 
 class TitlesGetSerializer(serializers.ModelSerializer):
     """Основной метод получения информации."""
 
-    categories = CategoriesSerializer(many=False, required=True)
-    genres = GenresSerializer(many=True, required=False)
+    category = CategoriesSerializer(many=False, required=True)
+    genre = GenresSerializer(many=True, required=False)
     rating = serializers.IntegerField()
 
     class Meta:
@@ -47,17 +49,17 @@ class TitlesGetSerializer(serializers.ModelSerializer):
             'year',
             'rating',
             'description',
-            'genres',
-            'categories'
+            'genre',
+            'category'
         )
-        model = Titles
+        model = Title
         read_only_fields = (
             'id',
             'name',
             'year',
             'rating',
             'description',
-            'genres',
-            'categories'
+            'genre',
+            'category'
         )
 
