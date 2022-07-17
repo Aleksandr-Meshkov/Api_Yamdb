@@ -5,6 +5,7 @@ import datetime as dt
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
+    """Категории."""
 
     class Meta:
         model = Category
@@ -12,10 +13,11 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
 
 class TitlesSerializer(serializers.ModelSerializer):
-    """Основной метод записи информации."""
-    category = SlugRelatedField(slug_field='slug', queryset=Category.objects.all())
+    """Основной метод записи объекта произведения."""
+    category = SlugRelatedField(slug_field='slug',
+                                queryset=Category.objects.all())
     genre = SlugRelatedField(slug_field='slug', many=True,
-                              queryset=Genre.objects.all())
+                             queryset=Genre.objects.all())
 
     class Meta:
         model = Title
@@ -29,6 +31,7 @@ class TitlesSerializer(serializers.ModelSerializer):
 
 
 class GenresSerializer(serializers.ModelSerializer):
+    """Жанры произведений."""
 
     class Meta:
         model = Genre
@@ -36,7 +39,7 @@ class GenresSerializer(serializers.ModelSerializer):
 
 
 class TitlesGetSerializer(serializers.ModelSerializer):
-    """Основной метод получения информации."""
+    """Основной метод получения информации о произведении."""
 
     category = CategoriesSerializer(many=False, required=True)
     genre = GenresSerializer(many=True, required=False)
@@ -62,4 +65,3 @@ class TitlesGetSerializer(serializers.ModelSerializer):
             'genre',
             'category'
         )
-

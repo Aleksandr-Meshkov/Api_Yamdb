@@ -1,8 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from rest_framework import filters
-from .validators import validate_year
 
 ROLES = (
     ('user', 'Пользователь'),
@@ -43,7 +41,6 @@ class Title(models.Model):
     name = models.TextField()
     year = models.DateTimeField(
         'Дата публикации',
-        validators=[validate_year],
         auto_now_add=True
     )
     rating = models.IntegerField(

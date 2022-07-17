@@ -23,7 +23,8 @@ class CategoriesViewSet(CreateListDestroyViewSet):
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(avg_rating=Avg('rating')).order_by('-avg_rating')
+    queryset = Title.objects.annotate(
+        avg_rating=Avg('rating')).order_by('-avg_rating')
     serializer_class = TitlesSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend,)
@@ -41,25 +42,3 @@ class GenresViewSet(CreateListDestroyViewSet):
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-
-
-# def load(request):
-#     with open('static/data/category.csv', encoding='utf8') as f:
-#         f.readline()
-#         for line in f:
-#             id,name,slug=line.strip().split(',')
-#             category=Categories(name=name, slug=slug)
-#             category.save()
-#     with open('static/data/titles.csv', encoding='utf8') as f:
-#         f.readline()
-#         for line in f:
-#             id,title_id,genre_id=line.strip().split(',')
-#             title=Titles(name=name, year=year)
-#             title.save()
-#     with open('static/data/titles.csv', encoding='utf8') as f:
-#         f.readline()
-#         for line in f:
-#             id,name,year,category=line.strip().split(',')
-#             title=Titles(name=name, year=year, category=categories)
-#             title.save()
-#     return HttpResponse('ok')
