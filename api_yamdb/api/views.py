@@ -3,9 +3,9 @@ import uuid
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Avg
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 
-from rest_framework import filters, status,  mixins, viewsets, permissions
+from rest_framework import filters, status, mixins, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -14,8 +14,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
-from reviews.models import User, Review, Category, Title, Genre, Comment
-from .permissions import IsAdmin
+from reviews.models import User, Review, Category, Title, Genre
+from .permissions import (IsAdmin, IsAuthorModeratorAdminOrReadOnly, IsAdminOrReadOnly)
 from .serializers import (EmailSerializer, TokenSerializer, 
                           UserSerializer, CommentSerializer, ReviewSerializer,
                           CategoriesSerializer, TitlesSerializer,
@@ -93,7 +93,7 @@ class UserViewSet(viewsets.ModelViewSet):
 # Create your views here.
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthorOrReadOnly | IsModeratorOrReadOnly]
+    permission_classes = [IsAuthorModeratorAdminOrReadOnly]
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
@@ -107,7 +107,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthorOrReadOnly | IsModeratorOrReadOnly]
+    permission_classes = [IsAuthorModeratorAdminOrReadOnly]
 
     def get_queryset(self):
         review = get_object_or_404(Review, pk=self.kwargs.get("review_id"))
