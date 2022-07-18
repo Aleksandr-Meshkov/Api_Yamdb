@@ -92,7 +92,7 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'pub_date')
      
  
- class CategoriesSerializer(serializers.ModelSerializer):
+class CategoriesSerializer(serializers.ModelSerializer):
     """Категории."""
 
     class Meta:
