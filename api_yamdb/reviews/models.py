@@ -7,19 +7,20 @@ class User(AbstractUser):
     ADMIN = 'admin'
     MODERATOR = 'moderator'
     ROLES = (
-        (USER,'user'),
+        (USER, 'user'),
         (MODERATOR, 'moderator'),
         (ADMIN, 'admin')
-    ) 
+    )
 
     bio = models.TextField('Биография', blank=True)
     role = models.CharField(
         'Роль пользователя', max_length=16, choices=ROLES, default='user'
     )
     email = models.EmailField('Почта пользователя', unique=True)
-    confirmation_code = models.CharField('Токен подтверждения', max_length=50, blank=True)
+    confirmation_code = models.CharField(
+        'Токен подтверждения', max_length=50, blank=True
+    )
 
-    
     @property
     def is_user(self):
         return self.role == self.USER
@@ -31,7 +32,7 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.role == self.ADMIN or self.is_staff
-    
+
     class Meta:
         ordering = ('username',)
         verbose_name = 'Пользователь'
