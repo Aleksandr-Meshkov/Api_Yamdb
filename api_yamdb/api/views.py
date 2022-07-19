@@ -132,8 +132,7 @@ class CategoriesViewSet(CreateListDestroyViewSet):
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(
-        avg_rating=Avg('rating')).order_by('-avg_rating')
+    queryset = Title.objects.annotate(rating=Avg("reviews__score"))
     serializer_class = TitlesSerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = (DjangoFilterBackend,)

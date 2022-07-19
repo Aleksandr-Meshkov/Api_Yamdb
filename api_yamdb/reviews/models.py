@@ -68,14 +68,6 @@ class Title(models.Model):
         null=True,
         validators=[validate_year]
     )
-    rating = models.IntegerField(
-        validators=[
-            MaxValueValidator(10),
-            MinValueValidator(1)
-        ],
-        blank=True,
-        null=True,
-    )
     description = models.TextField()
     genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(
