@@ -15,8 +15,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 from reviews.models import User, Review, Category, Title, Genre
-from .permissions import (IsAdmin, IsAuthorModeratorAdminOrReadOnly, IsAdminOrReadOnly)
-from .serializers import (EmailSerializer, TokenSerializer, 
+from .permissions import (IsAdmin, IsAuthorModeratorAdminOrReadOnly,)
+from .serializers import (EmailSerializer, TokenSerializer,
                           UserSerializer, CommentSerializer, ReviewSerializer,
                           CategoriesSerializer, TitlesSerializer,
                           GenresSerializer, TitlesGetSerializer)
@@ -60,6 +60,7 @@ def get_token_for_user(request):
             }
             return Response(tokens, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CreateListDestroyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                                mixins.DestroyModelMixin,
@@ -148,4 +149,3 @@ class GenresViewSet(CreateListDestroyViewSet):
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-    
