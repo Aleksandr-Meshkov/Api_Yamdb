@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator, MaxValueValidator,
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from .validators import validate_year
 
 
 class User(AbstractUser):
@@ -38,9 +39,55 @@ class User(AbstractUser):
         ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        
+
     def __str__(self):
         return self.username
+
+
+class Genre(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=256)
+    slug = models.SlugField('slug', blank=False, unique=True, max_length=50)
+
+    def __str__(self):
+        return self.text
+
+
+class Title(models.Model):
+    name = models.TextField()
+    year = models.IntegerField(
+        'Дата публикации',
+        blank=True,
+        null=True,
+        validators=[validate_year]
+    )
+    rating = models.IntegerField(
+        validators=[
+            MaxValueValidator(10),
+            MinValueValidator(1)
+        ],
+        blank=True,
+        null=True,
+    )
+    description = models.TextField()
+    genre = models.ManyToManyField(Genre)
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        related_name='titles',
+        blank=True,
+        null=True,
+    )
+
+    def __str__(self):
+        return self.name
 
 
 class Review(models.Model):
@@ -73,49 +120,6 @@ class Review(models.Model):
     def __str__(self):
         return self.title.name
 
-
-class Genre(models.Model):
-    name = models.CharField(max_length=50)
-    slug = models.SlugField(max_length=50, unique=True)
-
-    def __str__(self):
-        return self.name
-
-
-class Category(models.Model):
-    name = models.CharField(max_length=256)
-    slug = models.SlugField(max_length=50)
-
-    def __str__(self):
-        return self.text
-
-
-class Title(models.Model):
-    name = models.TextField()
-    year = models.DateTimeField(
-        'Дата публикации',
-        auto_now_add=True
-    )
-    rating = models.IntegerField(
-        validators=[
-            MaxValueValidator(10),
-            MinValueValidator(1)
-        ],
-        blank=True,
-        null=True,
-    )
-    description = models.TextField()
-    genre = models.ManyToManyField(Genre)
-    category = models.ForeignKey(
-        Category,
-        on_delete=models.SET_NULL,
-        related_name='titles',
-        blank=True,
-        null=True,
-    )
-
-    def __str__(self):
-        return self.name
 
 class Comment(models.Model):
     review = models.ForeignKey(

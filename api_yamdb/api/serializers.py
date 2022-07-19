@@ -92,7 +92,7 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'pub_date')
      
  
- class CategoriesSerializer(serializers.ModelSerializer):
+class CategoriesSerializer(serializers.ModelSerializer):
     """Категории."""
 
     class Meta:
@@ -110,12 +110,6 @@ class TitlesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = '__all__'
-
-    def validate_year(self, value):
-        current_year = dt.date.today().year
-        if value > current_year:
-            raise serializers.ValidationError('Проверьте год')
-        return value
 
 
 class GenresSerializer(serializers.ModelSerializer):
