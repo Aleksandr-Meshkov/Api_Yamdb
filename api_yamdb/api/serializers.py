@@ -1,12 +1,10 @@
-import datetime as dt
-
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 from rest_framework.relations import SlugRelatedField
 
-from reviews.models import (User, Comment, Review, 
+from reviews.models import (User, Comment, Review,
                             Category, Title, Genre)
 
 
@@ -46,9 +44,10 @@ class EmailSerializer(serializers.Serializer):
 class TokenSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     confirmation_code = serializers.CharField(required=True)
-    
-    
+
+
 class ReviewSerializer(serializers.ModelSerializer):
+    """Отзывы."""
     title = serializers.SlugRelatedField(
         slug_field='name',
         read_only=True,
@@ -74,10 +73,11 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        fields = '__all__'
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Комментарии."""
     review = serializers.SlugRelatedField(
         slug_field='text',
         read_only=True
@@ -89,9 +89,9 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', 'text', 'author', 'pub_date')
-     
- 
+        fields = '__all__'
+
+
 class CategoriesSerializer(serializers.ModelSerializer):
     """Категории."""
 
