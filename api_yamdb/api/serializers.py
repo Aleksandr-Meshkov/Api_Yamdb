@@ -47,7 +47,6 @@ class TokenSerializer(serializers.Serializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    """Отзывы."""
     title = serializers.SlugRelatedField(
         slug_field='name',
         read_only=True,
@@ -77,7 +76,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    """Комментарии."""
     review = serializers.SlugRelatedField(
         slug_field='text',
         read_only=True
@@ -93,15 +91,12 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
-    """Категории."""
-
     class Meta:
         model = Category
         fields = ('name', 'slug')
 
 
 class TitlesSerializer(serializers.ModelSerializer):
-    """Основной метод записи объекта произведения."""
     category = SlugRelatedField(slug_field='slug',
                                 queryset=Category.objects.all())
     genre = SlugRelatedField(slug_field='slug', many=True,
@@ -113,16 +108,12 @@ class TitlesSerializer(serializers.ModelSerializer):
 
 
 class GenresSerializer(serializers.ModelSerializer):
-    """Жанры произведений."""
-
     class Meta:
         model = Genre
         fields = ('name', 'slug')
 
 
 class TitlesGetSerializer(serializers.ModelSerializer):
-    """Основной метод получения информации о произведении."""
-
     category = CategoriesSerializer(many=False, required=True)
     genre = GenresSerializer(many=True, required=False)
     rating = serializers.IntegerField()
