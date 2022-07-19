@@ -3,7 +3,7 @@ from django.urls import include, path
 from rest_framework import routers
 
 from .views import (UserViewSet, send_confirmation_code, get_token_for_user,
-                    CommentViewSet, ReviewViewSet, CategoriesViewSet, 
+                    CommentViewSet, ReviewViewSet, CategoriesViewSet,
                     TitlesViewSet, GenresViewSet)
 
 router_api_v1 = routers.DefaultRouter()
