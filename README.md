@@ -36,6 +36,6 @@ python manage.py runserver
 
 ***Авторы проекта:***
 
-***https://github.com/Aleksandr-Meshkov***
-***https://github.com/RinatMukhaev***
+***https://github.com/Aleksandr-Meshkov***<br>
+***https://github.com/RinatMukhaev***<br>
 ***https://github.com/tmbkv***
