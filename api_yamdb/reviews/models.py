@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from .validators import validate_year
 
 
 class User(AbstractUser):
@@ -38,7 +39,7 @@ class User(AbstractUser):
         ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        
+
     def __str__(self):
         return self.username
 
@@ -53,7 +54,7 @@ class Genre(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=256)
-    slug = models.SlugField(max_length=50)
+    slug = models.SlugField('slug', blank=False, unique=True, max_length=50)
 
     def __str__(self):
         return self.text
@@ -61,9 +62,11 @@ class Category(models.Model):
 
 class Title(models.Model):
     name = models.TextField()
-    year = models.DateTimeField(
+    year = models.IntegerField(
         'Дата публикации',
-        auto_now_add=True
+        blank=True,
+        null=True,
+        validators=[validate_year]
     )
     rating = models.IntegerField(
         validators=[

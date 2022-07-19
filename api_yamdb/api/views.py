@@ -3,20 +3,21 @@ import uuid
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Avg
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 
-from rest_framework import filters, status,  mixins, viewsets
+from rest_framework import filters, status, mixins, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.pagination import LimitOffsetPagination
+from api.permissions import (IsAdmin,
+                             IsAdminOrReadOnly)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-
-from reviews.models import User, Review, Category, Title, Genre, Comment
-from .permissions import IsAdmin, IsAuthorModeratorAdminOrReadOnly
-from .serializers import (EmailSerializer, TokenSerializer, 
+from .filters import TitleFilter
+from reviews.models import User, Review, Category, Title, Genre
+from .permissions import IsAdmin
+from .serializers import (EmailSerializer, TokenSerializer,
                           UserSerializer, CommentSerializer, ReviewSerializer,
                           CategoriesSerializer, TitlesSerializer,
                           GenresSerializer, TitlesGetSerializer)
@@ -61,6 +62,7 @@ def get_token_for_user(request):
             return Response(tokens, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class CreateListDestroyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                                mixins.DestroyModelMixin,
                                viewsets.GenericViewSet):
@@ -90,11 +92,9 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# Create your views here.
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthorModeratorAdminOrReadOnly]
-    
+    # permission_classes = [IsAuthorOrReadOnly | IsModeratorOrReadOnly]
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
@@ -108,8 +108,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthorModeratorAdminOrReadOnly]
-    
+    # permission_classes = [IsAuthorOrReadOnly | IsModeratorOrReadOnly]
 
     def get_queryset(self):
         review = get_object_or_404(Review, pk=self.kwargs.get("review_id"))
@@ -125,18 +124,19 @@ class CommentViewSet(viewsets.ModelViewSet):
 class CategoriesViewSet(CreateListDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategoriesSerializer
-    pagination_class = LimitOffsetPagination
+    permission_classes = [IsAdminOrReadOnly]
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    lookup_field = "slug"
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(
         avg_rating=Avg('rating')).order_by('-avg_rating')
     serializer_class = TitlesSerializer
-    pagination_class = LimitOffsetPagination
+    permission_classes = [IsAdminOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('category', 'genre', 'name', 'year')
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
@@ -147,7 +147,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
 class GenresViewSet(CreateListDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenresSerializer
-    pagination_class = LimitOffsetPagination
+    permission_classes = [IsAdminOrReadOnly]
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-    
+    lookup_field = "slug"
