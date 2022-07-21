@@ -33,7 +33,7 @@ class EmailSerializer(serializers.Serializer):
     )
 
     def validate_username(self, value):
-        if value == 'me':
+        if value.lower() == 'me':
             raise serializers.ValidationError(
                 "У пользователя не может быть имени me"
             )

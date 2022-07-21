@@ -11,8 +11,9 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Category, Genre, Review, Title, User
 
+from reviews.models import Category, Genre, Review, Title, User
+from .exception import ValidationErrorField
 from .filters import TitleFilter
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
                           IsAuthorModeratorAdminOrReadOnly)
@@ -26,39 +27,40 @@ from .serializers import (CategoriesSerializer, CommentSerializer,
 @permission_classes([AllowAny])
 def send_confirmation_code(request):
     serializer = EmailSerializer(data=request.data)
-    if serializer.is_valid():
-        email = serializer.validated_data.get('email')
-        username = serializer.validated_data.get('username')
-        confirmation_code = str(uuid.uuid4())
-        if not User.objects.filter(email=email).exists():
-            User.objects.create(
-                username=username,
-                email=email,
-                confirmation_code=confirmation_code
-            )
-        send_mail(
-            'Токен подтверждения',
-            confirmation_code,
-            settings.DEFAULT_FROM_EMAIL, [email]
+    serializer.is_valid(raise_exception=True)
+    email = serializer.validated_data.get('email')
+    username = serializer.validated_data.get('username')
+    confirmation_code = str(uuid.uuid4())
+    try:
+        user, created = User.objects.get_or_create(
+            username=username,
+            email=email,
+            confirmation_code=confirmation_code
         )
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as error:
+        raise ValidationErrorField(f'Неверные данные ошибка {error}')
+    send_mail(
+        'Сonfirmation_code',
+        f'Ваш код подтверждения {confirmation_code}',
+        settings.DEFAULT_FROM_EMAIL, [email]
+    )
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def get_token_for_user(request):
     serializer = TokenSerializer(data=request.data)
-    if serializer.is_valid():
-        username = serializer.validated_data.get('username')
-        confirmation_code = serializer.validated_data.get('confirmation_code')
-        user = get_object_or_404(User, username=username)
-        if user.confirmation_code == confirmation_code:
-            refresh = RefreshToken.for_user(user)
-            tokens = {
-                'access': str(refresh.access_token)
-            }
-            return Response(tokens, status=status.HTTP_200_OK)
+    serializer.is_valid(raise_exception=True)
+    username = serializer.validated_data.get('username')
+    confirmation_code = serializer.validated_data.get('confirmation_code')
+    user = get_object_or_404(User, username=username)
+    if user.confirmation_code == confirmation_code:
+        refresh = RefreshToken.for_user(user)
+        tokens = {
+            'access': str(refresh.access_token)
+        }
+        return Response(tokens, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
