@@ -20,6 +20,7 @@ from .serializers import (CategoriesSerializer, CommentSerializer,
                           EmailSerializer, GenresSerializer, ReviewSerializer,
                           TitlesGetSerializer, TitlesSerializer,
                           TokenSerializer, UserSerializer)
+from .mixins import CreateListDestroyViewSet
 
 
 @api_view(['POST'])
@@ -60,12 +61,6 @@ def get_token_for_user(request):
             }
             return Response(tokens, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class CreateListDestroyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                               mixins.DestroyModelMixin,
-                               viewsets.GenericViewSet):
-    pass
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -123,18 +118,15 @@ class CommentViewSet(viewsets.ModelViewSet):
 class CategoriesViewSet(CreateListDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes = [IsAdminOrReadOnly]
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = "slug"
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg("reviews__score"))
     serializer_class = TitlesSerializer
     permission_classes = [IsAdminOrReadOnly]
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
     filterset_class = TitleFilter
+    ordering_fields = ('name',)
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
@@ -145,7 +137,3 @@ class TitlesViewSet(viewsets.ModelViewSet):
 class GenresViewSet(CreateListDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenresSerializer
-    permission_classes = [IsAdminOrReadOnly]
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = "slug"
