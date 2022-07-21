@@ -103,32 +103,32 @@ class Title(models.Model):
         return self.name
 
 
-class AbstractModel(models.Model):
+class BaseModelForReviewComment(models.Model):
     text = models.TextField(verbose_name='Текст',)
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True,
         db_index=True
     )
+    author = models.ForeignKey(
+        User,
+        verbose_name='Автор',
+        on_delete=models.CASCADE
+    )
 
     class Meta:
         abstract = True
-        ordering = ['pub_date']
+        ordering = ['pub_date', ]
 
     def __str__(self):
         return self.text
 
 
-class Review(AbstractModel):
+class Review(BaseModelForReviewComment):
     title = models.ForeignKey(
         Title,
         verbose_name='Произведение',
-        on_delete=models.CASCADE, related_name='reviews'
-    )
-    author = models.ForeignKey(
-        User,
-        verbose_name='Автор',
-        on_delete=models.CASCADE, related_name='reviews'
+        on_delete=models.CASCADE
     )
     score = models.PositiveSmallIntegerField(
         verbose_name='Рейтинг',
@@ -141,9 +141,10 @@ class Review(AbstractModel):
         ]
     )
 
-    class Meta(AbstractModel.Meta):
+    class Meta(BaseModelForReviewComment.Meta):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
+        default_related_name = 'reviews'
         constraints = [
             models.UniqueConstraint(
                 fields=['author', 'title'],
@@ -152,19 +153,14 @@ class Review(AbstractModel):
         ]
 
 
-class Comment(AbstractModel):
+class Comment(BaseModelForReviewComment):
     review = models.ForeignKey(
         Review,
         verbose_name='Отзыв',
-        on_delete=models.CASCADE, related_name='comments'
-    )
-    author = models.ForeignKey(
-        User,
-        verbose_name='Пользователь',
-        on_delete=models.CASCADE, related_name='comments'
-
+        on_delete=models.CASCADE
     )
 
-    class Meta(AbstractModel.Meta):
+    class Meta(BaseModelForReviewComment.Meta):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
+        default_related_name = 'comments'
