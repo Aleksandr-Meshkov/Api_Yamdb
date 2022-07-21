@@ -47,29 +47,28 @@ class User(AbstractUser):
         return self.username
 
 
-class BaseModel(models.Model):
-    name = models.CharField(max_length=50)
+class BaseGenreCategory(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(max_length=50, unique=True)
 
     class Meta:
         abstract = True
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
 
 
-class Genre(BaseModel):
-    slug = models.SlugField(max_length=50, unique=True)
+class Genre(BaseGenreCategory):
 
-    class Meta:
+    class Meta(BaseGenreCategory.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
 
-class Category(BaseModel):
-    slug = models.SlugField('slug', blank=False, unique=True, max_length=50)
+class Category(BaseGenreCategory):
 
-    class Meta:
+    class Meta(BaseGenreCategory.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
@@ -95,7 +94,7 @@ class Title(models.Model):
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 

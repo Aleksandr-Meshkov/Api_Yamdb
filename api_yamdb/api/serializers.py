@@ -1,3 +1,4 @@
+import datetime as dt
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueValidator
@@ -97,6 +98,12 @@ class TitlesSerializer(serializers.ModelSerializer):
                                 queryset=Category.objects.all())
     genre = SlugRelatedField(slug_field='slug', many=True,
                              queryset=Genre.objects.all())
+
+    def validate_year(self, value):
+        now_year = dt.date.today()
+        if value > now_year.year:
+            raise serializers.ValidationError('Некорректный год')
+        return value
 
     class Meta:
         model = Title
