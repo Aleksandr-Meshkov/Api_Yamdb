@@ -86,33 +86,45 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
+class RecordViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthorModeratorAdminOrReadOnly]
+    base_model = None
+    id_name = None
+    record_name = None
+
+    def get_base_record(self):
+        return get_object_or_404(
+            self.base_model, pk=self.kwargs.get(self.id_name)
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            **{self.record_name: get_object_or_404(
+                self.base_model, pk=self.kwargs.get(self.id_name)
+            )
+            }
+        )
+
+
+class ReviewViewSet(RecordViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthorModeratorAdminOrReadOnly]
+    base_model = Title
+    id_name = "title_id"
+    record_name = "title"
 
     def get_queryset(self):
-        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
-        return title.reviews.all()
-
-    def perform_create(self, serializer):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        serializer.save(author=self.request.user, title=title)
+        return self.get_base_record().reviews.all()
 
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(RecordViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthorModeratorAdminOrReadOnly]
+    base_model = Review
+    id_name = "review_id"
+    record_name = "review"
 
     def get_queryset(self):
-        review = get_object_or_404(Review, pk=self.kwargs.get("review_id"))
-        return review.comments.all()
-
-    def perform_create(self, serializer):
-        title_id = self.kwargs.get('title_id')
-        review_id = self.kwargs.get('review_id')
-        review = get_object_or_404(Review, id=review_id, title=title_id)
-        serializer.save(author=self.request.user, review=review)
+        return self.get_base_record().comments.all()
 
 
 class CategoriesViewSet(CreateListDestroyViewSet):
