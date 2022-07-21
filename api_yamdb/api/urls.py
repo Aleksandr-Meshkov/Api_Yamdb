@@ -14,11 +14,9 @@ router_api_v1.register(r'titles/(?P<title_id>\d+)/reviews',
                        ReviewViewSet, basename='reviews')
 router_api_v1.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)'
                        r'/comments', CommentViewSet, basename='comments')
-router_api_v1.register('categories', CategoriesViewSet)
-
-router_api_v1.register('titles', TitlesViewSet)
-
-router_api_v1.register('genres', GenresViewSet)
+router_api_v1.register('categories', CategoriesViewSet, basename='categories')
+router_api_v1.register('titles', TitlesViewSet, basename='titles')
+router_api_v1.register('genres', GenresViewSet, basename='genres')
 
 
 urlpatterns = [
