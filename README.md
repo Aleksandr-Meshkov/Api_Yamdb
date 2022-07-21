@@ -42,6 +42,6 @@ python manage.py runserver
 
 ***Документация:***
 
-***https://www.django-rest-framework.org/***
-***https://www.djangoproject.com/***
+***https://www.django-rest-framework.org/***<br>
+***https://www.djangoproject.com/***<br>
 ***https://django-rest-framework-simplejwt.readthedocs.io/en/latest/***
