@@ -42,6 +42,7 @@ python manage.py runserver
 
 ***Документация:***
 
+***http://127.0.0.1:8000/redoc/***
 ***https://www.django-rest-framework.org/***<br>
 ***https://www.djangoproject.com/***<br>
 ***https://django-rest-framework-simplejwt.readthedocs.io/en/latest/***

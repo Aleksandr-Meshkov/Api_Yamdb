@@ -1,3 +1,4 @@
+import datetime as dt
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueValidator
@@ -64,7 +65,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         return data
 
     def validate_score(self, value):
-        if not 1 <= value <= 10:
+        MinValueValidator = 1
+        MaxValueValidator = 10
+        if not MinValueValidator <= value <= MaxValueValidator:
             raise serializers.ValidationError(
                 'Оценкой может быть целое число в диапазоне от 1 до 10.'
             )
@@ -97,6 +100,12 @@ class TitlesSerializer(serializers.ModelSerializer):
                                 queryset=Category.objects.all())
     genre = SlugRelatedField(slug_field='slug', many=True,
                              queryset=Genre.objects.all())
+
+    def validate_year(self, value):
+        now_year = dt.date.today()
+        if value > now_year.year:
+            raise serializers.ValidationError('Некорректный год')
+        return value
 
     class Meta:
         model = Title
