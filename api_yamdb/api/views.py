@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.core.mail import send_mail
+from django.db import IntegrityError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
@@ -11,7 +12,6 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, Review, Title, User
-from .exception import ValidationErrorField
 from .filters import TitleFilter
 from .mixins import CreateListDestroyViewSet
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
@@ -36,8 +36,10 @@ def send_confirmation_code(request):
             email=email,
             confirmation_code=confirmation_code
         )
-    except Exception as error:
-        raise ValidationErrorField(f'Неверные данные ошибка {error}')
+    except IntegrityError:
+        return Response(
+            'Неверные данные ошибка', status=status.HTTP_400_BAD_REQUEST
+        )
     send_mail(
         'Сonfirmation_code',
         f'Ваш код подтверждения {confirmation_code}',
@@ -80,8 +82,8 @@ class UserViewSet(viewsets.ModelViewSet):
         user = get_object_or_404(User, username=request.user.username)
         if request.method == 'PATCH':
             serializer = UserSerializer(user, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save(role=user.role)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(role=user.role)
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
