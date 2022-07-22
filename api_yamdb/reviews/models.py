@@ -26,6 +26,11 @@ class User(AbstractUser):
         'Токен подтверждения', max_length=50, blank=True
     )
 
+    class Meta:
+        ordering = ('username',)
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
     @property
     def is_user(self):
         return self.role == self.USER
@@ -38,18 +43,13 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == self.ADMIN or self.is_staff
 
-    class Meta:
-        ordering = ('username',)
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-
     def __str__(self):
         return self.username
 
 
 class BaseGenreCategory(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(max_length=50, unique=True)
+    name = models.CharField(verbose_name='Имя', max_length=50, unique=True)
+    slug = models.SlugField(verbose_name='Slug', max_length=50, unique=True)
 
     class Meta:
         abstract = True
@@ -74,7 +74,7 @@ class Category(BaseGenreCategory):
 
 
 class Title(models.Model):
-    name = models.TextField()
+    name = models.TextField(verbose_name='Имя произведения')
     year = models.PositiveIntegerField(
         'Дата публикации',
         blank=True,
@@ -117,7 +117,7 @@ class BaseModelForReviewComment(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ['pub_date', ]
+        ordering = ('pub_date',)
 
     def __str__(self):
         return self.text
@@ -140,7 +140,7 @@ class Review(BaseModelForReviewComment):
         ]
     )
 
-    class Meta(BaseModelForReviewComment.Meta):
+    class Meta(BaseModelForReviewComment.Meta): 
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         default_related_name = 'reviews'
