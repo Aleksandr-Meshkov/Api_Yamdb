@@ -14,11 +14,12 @@ router_api_v1.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)'
 router_api_v1.register('categories', CategoriesViewSet, basename='categories')
 router_api_v1.register('titles', TitlesViewSet, basename='titles')
 router_api_v1.register('genres', GenresViewSet, basename='genres')
+registration = [
+    path('signup/', send_confirmation_code, name='signup'),
+    path('token/', get_token_for_user, name='token'),
+]
 
 urlpatterns = [
     path('v1/', include(router_api_v1.urls)),
-    path('v1/auth/', include([
-        path('signup/', send_confirmation_code, name='signup'),
-        path('token/', get_token_for_user, name='token'),
-    ])),
+    path('v1/auth/', include(registration))
 ]
